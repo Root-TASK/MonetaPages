@@ -29,6 +29,14 @@ os.makedirs("uploads", exist_ok=True)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Moneta Bank API starting up...")
+    # Verify DB and create tables
+    from database import SQLALCHEMY_DATABASE_URL, engine, Base
+    logger.info(f"[DB] Initializing with: {SQLALCHEMY_DATABASE_URL.split('@')[-1]}")
+    try:
+        Base.metadata.create_all(bind=engine)
+        logger.info("[DB] Tables verified/created successfully.")
+    except Exception as e:
+        logger.error(f"[DB] CRITICAL STARTUP ERROR: {e}")
     yield
     logger.info("Moneta Bank API shutting down...")
 
@@ -42,10 +50,14 @@ app = FastAPI(
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
-    logger.error(f"Unhandled error: {exc}", exc_info=True)
+    logger.error(f"Unhandled error during {request.method} {request.url.path}: {exc}", exc_info=True)
+    # Include error detail in response for faster production debugging
     return JSONResponse(
         status_code=500,
-        content={"detail": "An internal server error occurred. Please contact support.", "status": "error"}
+        content={
+            "detail": str(exc) if os.getenv("DEBUG") else "An internal server error occurred. Please check logs.",
+            "status": "error"
+        }
     )
 
 # CORS origins from environment (comma-separated list)

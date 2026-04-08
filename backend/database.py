@@ -15,12 +15,25 @@ is_sqlite = SQLALCHEMY_DATABASE_URL.startswith("sqlite")
 connect_args = {"check_same_thread": False} if is_sqlite else {}
 
 if is_sqlite:
-    # Extract directory from path like sqlite:///./data/moneta.db
-    # We want to ensure the ./data directory exists
+    # Ensure absolute path for SQLite in Docker
     db_path = SQLALCHEMY_DATABASE_URL.replace("sqlite:///", "")
-    db_dir = os.path.dirname(db_path)
-    if db_dir and not db_dir.startswith("http"): # Avoid remote URL confusion
-        os.makedirs(db_dir, exist_ok=True)
+    if db_path.startswith("./"):
+        # Convert ./data/moneta.db to absolute path inside /app or equivalent
+        base_dir = os.path.abspath(os.getcwd())
+        abs_db_path = os.path.normpath(os.path.join(base_dir, db_path))
+        SQLALCHEMY_DATABASE_URL = f"sqlite:///{abs_db_path}"
+        db_dir = os.path.dirname(abs_db_path)
+    else:
+        db_dir = os.path.dirname(db_path)
+        
+    if db_dir and not db_dir.startswith("http"):
+        try:
+            os.makedirs(db_dir, exist_ok=True)
+            print(f"[DB] Initialized directory: {db_dir}")
+        except Exception as e:
+            print(f"[DB] Error creating directory {db_dir}: {e}")
+
+print(f"[DB] Using Database URL: {SQLALCHEMY_DATABASE_URL.split('@')[-1]}") # Hide credentials
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
