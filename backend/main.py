@@ -56,7 +56,9 @@ origins = [
     "http://localhost:5175",
     "http://127.0.0.1:5175",
     "http://localhost:3000",
-    "http://127.0.0.1:3000"
+    "http://127.0.0.1:3000",
+    "https://monetabank.monakin.in",
+    "https://monetapages.onrender.com"
 ]
 if env_origins and env_origins[0]:
     origins.extend([o.strip() for o in env_origins])
