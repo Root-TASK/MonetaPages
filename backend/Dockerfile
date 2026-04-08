@@ -23,8 +23,8 @@ COPY --from=builder /usr/local/bin /usr/local/bin
 
 COPY . .
 
-# Ensure uploads directory exists
-RUN mkdir -p /app/uploads
+# Ensure database and uploads directories exist
+RUN mkdir -p /app/data /app/uploads
 
 EXPOSE 8008
 

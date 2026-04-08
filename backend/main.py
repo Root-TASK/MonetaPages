@@ -24,7 +24,10 @@ logger = logging.getLogger("moneta-bank")
 
 Base.metadata.create_all(bind=engine)
 
-os.makedirs("uploads", exist_ok=True)
+# Ensure absolute path for uploads in Docker
+BASE_DIR = os.path.abspath(os.getcwd())
+UPLOADS_DIR = os.path.join(BASE_DIR, "uploads")
+os.makedirs(UPLOADS_DIR, exist_ok=True)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
