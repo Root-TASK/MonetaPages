@@ -73,10 +73,15 @@ origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "https://monetabank.monakin.in",
-    "https://monetapages.onrender.com"
+    "http://monetabank.monakin.in",
+    "https://monetapages.onrender.com",
+    "http://monetapages.onrender.com"
 ]
-if env_origins and env_origins[0]:
-    origins.extend([o.strip() for o in env_origins])
+if env_origins:
+    for o in env_origins:
+        clean_origin = o.strip()
+        if clean_origin and clean_origin not in origins:
+            origins.append(clean_origin)
 
 app.add_middleware(
     CORSMiddleware,
