@@ -141,7 +141,7 @@ Then install: `pip install psycopg2-binary`
 Create `backend/.env`:
 
 ```env
-DATABASE_URL=sqlite:///./moneta.db
+DATABASE_URL=sqlite:///./data/moneta.db
 CORS_ORIGINS=http://localhost:5173
 ```
 
